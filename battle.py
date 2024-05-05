@@ -8,12 +8,13 @@ the text scrolling can really be optimized
 
 Bugs: 
 # item still usable after reaching 0kk
+the death status is really unstable
 
 Necessary:
 # replace the placeholder dog
 
 
-NOT Necessary but we should definetly do this:
+NOT Necessary but adds to gameplay:
 
 # battle animations (can be as simple as shaking the screen when hurt or turning it red when he does the fire attack)
 # more sounds
@@ -173,14 +174,14 @@ ITEM_DESCRIPTION = {
 ITEM_ACTION = {
     "Mushroom": [
         80, 0,
-        ["Don't do drugs kids, or you go to", "hell before you die", "BEANZ"],
+        ["Don't do drugs kids, or you go to", "hell before you die", " "],
         None, "add", "add"
     ],
     "1-UP Shroom": [1, 10, ["Waow ifone", " ", " "], "Death", "add", "add"],
     "Skinny Mushroom": [160, 0, [" ", " ", " "], None, "add", "add"],
     "test": [
         9999, 0,
-        ["Don't do drugs kids, or you go to", "hell before you die", "BEANZ"],
+        ["Don't do drugs kids, or you go to", "hell before you die", " "],
         "Death", "sub", "add"
     ],
     "---": [None, None, None, None, None, None]
@@ -392,7 +393,7 @@ def item_handler(
     Inventory_amount[inventory_index] = Inventory_amount[inventory_index] - 1
 
 
-def update_text():  #does the scrolling text thing in RPGs, I am very sorry for the jankiness.
+def update_text():  #does the scrolling text thing in RPGs, there is so much jank.
     global current_line, txtScr
     global txt1_out, txt2_out, txt3_out
     global txt1, txt2, txt3
@@ -615,7 +616,8 @@ class Boss:
                            "  take 135 damage", " ")
                     Brute_TARGETHP -= 135
 
-    def AOE():
+    def AOE(): #AOA? Like Angle of Attack? Aviation reference? wut
+        #"Area of Effect"
         global CA
         global Warrior
         global Healer
@@ -659,9 +661,8 @@ class Boss:
             else:
                 brute_result_string = "Brute was reduced to ashes"
                 Brute_TARGETHP = 0
-            printB(warrior_result_string, healer_result_string,
-                   brute_result_string)
-
+            printB(warrior_result_string, healer_result_string,brute_result_string)
+ 
         else:
             printB("The Enemy charges up an attack", " ", " ")
             charge = True
@@ -907,6 +908,31 @@ def cursor_handler(dpad):  #0 is right. 1 is left. 2 is up. 3 is down
             menu_row = 0
             cursor_y = cursor_y - 26 * 3
 
+def resTextVisual_CursorHidden(): #resets text visually with the cursor hidden
+    global txt1_out, txt2_out, txt3_out
+    global cursor_x, cursor_y
+    global menu_row, menu_col, menu_type
+    txt1_out = " "
+    txt2_out = " "
+    txt2_out = " "
+    cursor_x = -16
+    cursor_y = 24
+    menu_col = 0
+    menu_row = 0    
+
+def resText(): #resets text with the cursor shown
+    global txt1_out, txt2_out, txt3_out
+    global cursor_x, cursor_y
+    global menu_row, menu_col, menu_type
+    global current_member
+    menu_type = 1
+    cursor_x = 30
+    cursor_y = 24
+    menu_col = 0
+    menu_row = 0
+    current_member = current_member + 1
+
+
 
 def menu_load(button):  #Button 0 is B. Button 1 is A
     #corrects menu_row and menu_col positions
@@ -937,22 +963,15 @@ def menu_load(button):  #Button 0 is B. Button 1 is A
                 menu_type = 2
                 MENU_OPEN.play()
             elif menu_col == 1:  #defend
+                resText()
                 choices.append("D")
-                menu_type = 1
-                cursor_x = 30
-                cursor_y = 24
-                menu_col = 0
-                menu_row = 0
-                current_member = current_member + 1
+
                 MENU_OPEN.play()
             elif menu_col == 2:  #Run
                 menu_type = 0
-                cursor_x = -16
-                cursor_y = 24
-                menu_col = 0
-                menu_row = 0
-                txt2_out = ""
+                resTextVisual_CursorHidden()
                 printB("You can't run. This is a Boss Battle", " ", " ")
+                
         if menu_row == 1:
             if menu_col == 0:  #Item
                 menu_type = 4
@@ -971,11 +990,7 @@ def menu_load(button):  #Button 0 is B. Button 1 is A
                 MENU_OPEN.play()
 
             elif menu_col == 2:  #spare
-                menu_type = 0
-                cursor_x = -16
-                cursor_y = 24
-                menu_col = 0
-                menu_row = 0
+                resTextVisual_CursorHidden()
                 printB("There is no way in the world that you will be", " able to tame this beast", " ")
 
     elif menu_type == 1 and button == 0:  #when on the main menu and the B button is pressed
@@ -988,12 +1003,7 @@ def menu_load(button):  #Button 0 is B. Button 1 is A
 
     elif menu_type == 2 and button == 1:  #when on the attack enemy selection and the A button is pressed
         choices.append("A")
-        menu_type = 1
-        cursor_x = 30
-        cursor_y = 24
-        menu_col = 0
-        menu_row = 0
-        current_member = current_member + 1
+        resText()
         MENU_OPEN.play()
 
     elif menu_type == 3 and button == 1:  #when on the skills menu and the A button is pressed
@@ -1099,7 +1109,7 @@ def winner():
     screen.blit(font5.render("YOU WON!", True, (100, 100, 210)), (60, 60))
 
 
-printB("The Dog shaped like a Sock snuck up from ", "behind.", "Goodluck")
+printB("The Dog shaped like a Sock snuck up from ", "behind.", "Good luck")
 #the graphics updating code
 
 def battle_loop(): #this used to be a while loop but now its a function so every global variable must be imported
@@ -1245,10 +1255,10 @@ def battle_loop(): #this used to be a while loop but now its a function so every
                     cursor_handler(0)
                     MENU_CLICK.play()
 
-                if event.key == pygame.K_j or event.key == pygame.K_z:
+                if event.key == pygame.K_j or event.key == pygame.K_x:
                     menu_load(0)
 
-                if event.key == pygame.K_k or event.key == pygame.K_x:
+                if event.key == pygame.K_k or event.key == pygame.K_z:
                     menu_load(1)
 
                 if event.key == pygame.K_1:
